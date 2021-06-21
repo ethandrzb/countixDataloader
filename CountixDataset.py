@@ -1,5 +1,5 @@
 import torch
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset
 import os
 import cv2
 import numpy as np
@@ -16,6 +16,9 @@ class Countix(Dataset):
         self.clip_len = clip_len
         self.annotations = self.read_split()
 
+        if self.split is not 'test':
+            self.class_dict = self.generate_class_ids()
+
     def __len__(self):
         return len(self.annotations)
 
@@ -25,6 +28,17 @@ class Countix(Dataset):
         # TODO Normalization
         frames = self.to_tensor(frames)
         return frames, self.annotations['count'][index]
+        # Use the return statement below to return video classification instead of frame count
+        # return frames, self.class_dict[self.annotations['class'][index]]
+
+    def generate_class_ids(self):
+        class_dict = {}
+        id = 0
+        classes = pd.read_csv(os.path.join(self.root, "CSVs", "countix_class_ids.csv"), sep=",")
+        for name in classes['class']:
+            class_dict.update({name:id})
+            id += 1
+        return class_dict
 
     @staticmethod
     def to_tensor(frames):
@@ -78,8 +92,9 @@ if __name__ == '__main__':
     clip = train_set.get_relevant_clip(2093)
     print(clip.shape)
 
-    # Visualize single clip
+    # print(train_set.class_dict.items())
 
+    # Visualize single clip
     for frame in clip:
         cv2.imshow('clip', frame)
         k = cv2.waitKey(30) & 0xff
