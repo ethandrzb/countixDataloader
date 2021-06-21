@@ -74,3 +74,9 @@ if __name__ == '__main__':
 
   clip = train_set.get_relevant_clip(2093)
   print(clip.shape)
+
+  # Visualize single clip
+
+  for frame in clip:
+    cv2.imshow('clip', frame)
+    k = cv2.waitKey(30) & 0xff
