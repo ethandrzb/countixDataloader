@@ -10,11 +10,14 @@ root = os.path.join('D:', 'Countix')
 
 class Countix(Dataset):
 
-    def __init__(self, root, split, clip_len=16):
+    def __init__(self, root, split, clip_len=16, resize_height = 224, resize_width = 224):
         self.root = root
         self.split = split
         self.clip_len = clip_len
         self.annotations = self.read_split()
+        self.resize_height = resize_height
+        self.resize_width = resize_width
+        self.debug = False
 
         if self.split is not 'test':
             self.class_dict = self.generate_class_ids()
@@ -51,22 +54,26 @@ class Countix(Dataset):
     def get_relevant_clip(self, index):
         frames, fps = self.read_video(index)
 
-        print('FPS = ' + str(fps))
-        print(frames.shape)
+        if self.debug:
+            print('FPS = ' + str(fps))
+            print(frames.shape)
 
         start_index = int(fps * self.annotations['repetition_start'][index])
         end_index = int(fps * self.annotations['repetition_end'][index])
-        print(start_index)
-        print(end_index)
+
+        if self.debug:
+            print(start_index)
+            print(end_index)
         return frames[start_index: end_index]
 
     def read_split(self):
         # Remove '_no_missing_ids' if applicable
         return pd.read_csv(os.path.join(self.root, "CSVs", "Countix_" + self.split + "_no_missing_ids.csv"), sep=",")
 
-    def read_video(self, index, width=224, height=224):
+    def read_video(self, index):
         """Read video from file."""
-        print('Video ID = ' + self.annotations['video_id'][index])
+        if self.debug:
+            print('Video ID = ' + self.annotations['video_id'][index])
 
         cap = cv2.VideoCapture(os.path.join(self.root, self.split, self.annotations['video_id'][index] + '.mp4'))
         if not cap.isOpened():
@@ -81,7 +88,7 @@ class Countix(Dataset):
                 if not success:
                     break
                 frame_rgb = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2RGB)
-                frame_rgb = cv2.resize(frame_rgb, (width, height))
+                frame_rgb = cv2.resize(frame_rgb, (self.resize_width, self.resize_height))
                 frames.append(frame_rgb)
         frames = np.asarray(frames)
         return frames, fps
