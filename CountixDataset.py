@@ -90,7 +90,8 @@ class Countix(Dataset):
 if __name__ == '__main__':
     train_set = Countix(root=root, split='train')
 
-    clip = train_set.get_relevant_clip(2093)
+    # Use index 2093 if using the unaltered dataset (i.e. countix_train.csv, not countix_train_no_missing_ids.csv)
+    clip = train_set.get_relevant_clip(1991)
     print(clip.shape)
 
     # print(train_set.class_dict.items())
