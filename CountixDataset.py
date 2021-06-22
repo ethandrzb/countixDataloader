@@ -48,7 +48,7 @@ class Countix(Dataset):
         # (clip_len, height, width, channels)
         frames = frames.transpose((3, 0, 1, 2))
         # (channels, clip_len, height, width)
-        return frames
+        return torch.from_numpy(frames)
 
     # Trims clip to start and end points specified in dataset
     def get_relevant_clip(self, index):
@@ -59,6 +59,8 @@ class Countix(Dataset):
             print(frames.shape)
 
         start_index = int(fps * self.annotations['repetition_start'][index])
+        # TODO Implement variable clip length required for repetition counting
+        # Static lengths are fine for classification
         end_index = int(fps * self.annotations['repetition_end'][index])
 
         if self.debug:
