@@ -61,7 +61,8 @@ class Countix(Dataset):
         return frames[start_index: end_index]
 
     def read_split(self):
-        return pd.read_csv(os.path.join(self.root, "CSVs", "Countix_" + self.split + ".csv"), sep=",")
+        # Remove '_no_missing_ids' if applicable
+        return pd.read_csv(os.path.join(self.root, "CSVs", "Countix_" + self.split + "_no_missing_ids.csv"), sep=",")
 
     def read_video(self, index, width=224, height=224):
         """Read video from file."""
